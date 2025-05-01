@@ -1,37 +1,67 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { Stack, useNavigation } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { Image, View, TouchableOpacity, Text } from 'react-native';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+// Custom header component
+const CustomHeader = () => {
+  const navigation = useNavigation();
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingTop: 10,
+        paddingHorizontal: 10,
+      }}
+    >
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <Text style={{ fontSize: 18 }}>← Back</Text>
+      </TouchableOpacity>
+      <Text style={{ flex: 1, textAlign: 'center', fontSize: 18 }}>
+        Header Title
+      </Text>
+    </View>
+  );
+};
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
+    // Simulate checking auth state
+    setTimeout(() => setIsLoading(false), 1000);
+  }, []);
 
-  if (!loaded) {
-    return null;
+  if (isLoading) {
+    return null; // Or a loading screen component
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
+    <Stack
+      screenOptions={{
+        header: () => <CustomHeader />,
+        headerShown: true,
+      }}
+    >
+      <Stack.Screen
+        name="index"
+        options={{ title: 'Landing Page', headerShown: false }}
+      />
+      <Stack.Screen
+        name="(auth)/signup"
+        options={{ title: 'Sign Up', headerShown: false }}
+      />
+      <Stack.Screen
+        name="(auth)/login"
+        options={{ title: 'Login', headerShown: false }}
+      />
+      <Stack.Screen
+        name="(firearms)/firearms"
+        options={{ title: 'My Firearms', headerShown: false }}
+      />
+      <Stack.Screen
+        name="(firearms)/maintenance"
+        options={{ title: 'Maintenance', headerShown: false }}
+      />
+    </Stack>
   );
 }
