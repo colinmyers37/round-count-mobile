@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../theme/colors';
 
 interface FeatureCardProps {
   index: number;
@@ -27,7 +28,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ index, icon, title, descripti
       ]}
     >
       <View style={styles.featureIconContainer}>
-        <Ionicons name={icon as any} size={20} color="#3B82F6" />
+        <Ionicons name={icon as any} size={20} color={colors.primary} />
       </View>
       <Text style={styles.featureTitle}>{title}</Text>
       <Text style={styles.featureDescription}>
@@ -40,7 +41,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ index, icon, title, descripti
 const styles = StyleSheet.create({
   featureCard: {
     width: '45%',
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.cardBackground,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -57,7 +58,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
@@ -65,13 +66,13 @@ const styles = StyleSheet.create({
   featureTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1E293B',
+    color: colors.textPrimary,
     marginBottom: 4,
     textAlign: 'center',
   },
   featureDescription: {
     fontSize: 12,
-    color: '#64748B',
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 16,
   },

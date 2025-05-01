@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../theme/colors';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -29,7 +30,7 @@ export default function LoginScreen() {
         style={styles.backButton}
         onPress={() => router.back()}
       >
-        <Ionicons name="chevron-back" size={24} color="#1E293B" />
+        <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
       </TouchableOpacity>
 
       <View style={styles.content}>
@@ -43,7 +44,7 @@ export default function LoginScreen() {
           <TextInput
             style={styles.input}
             placeholder="Email"
-            placeholderTextColor="#94A3B8"
+            placeholderTextColor={colors.textSecondary}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -52,7 +53,7 @@ export default function LoginScreen() {
           <TextInput
             style={styles.input}
             placeholder="Password"
-            placeholderTextColor="#94A3B8"
+            placeholderTextColor={colors.textSecondary}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -78,7 +79,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: colors.background,
   },
   backButton: {
     position: 'absolute',
@@ -97,7 +98,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#3B82F6',
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 32,
@@ -105,21 +106,21 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 48,
     fontWeight: 'bold',
-    color: 'white',
+    color: colors.background,
   },
   title: {
     fontSize: 36,
     fontWeight: 'bold',
     marginBottom: 12,
     textAlign: 'center',
-    color: '#1E293B',
+    color: colors.textPrimary,
     letterSpacing: 0.5,
   },
   subtitle: {
     fontSize: 18,
     marginBottom: 32,
     textAlign: 'center',
-    color: '#64748B',
+    color: colors.textSecondary,
     lineHeight: 24,
   },
   formContainer: {
@@ -129,12 +130,12 @@ const styles = StyleSheet.create({
   input: {
     height: 50,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: '#1E293B',
-    backgroundColor: '#F8FAFC',
+    color: colors.textPrimary,
+    backgroundColor: colors.cardBackground,
   },
   button: {
     borderRadius: 12,
@@ -151,10 +152,10 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   primaryButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: colors.primary,
   },
   buttonText: {
-    color: 'white',
+    color: colors.background,
     fontSize: 16,
     fontWeight: '600',
     letterSpacing: 0.5,
@@ -165,11 +166,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   linkText: {
-    color: '#64748B',
+    color: colors.textSecondary,
     fontSize: 16,
   },
   linkTextBold: {
-    color: '#3B82F6',
+    color: colors.primary,
     fontSize: 16,
     fontWeight: '600',
   },

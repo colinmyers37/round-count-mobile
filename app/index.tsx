@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import FeatureCard from './components/FeatureCard';
+import { colors } from './theme/colors';
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -79,7 +80,7 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: colors.background,
   },
   contentContainer: {
     padding: 24,
@@ -94,7 +95,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#3B82F6',
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 32,
@@ -102,21 +103,21 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 48,
     fontWeight: 'bold',
-    color: 'white',
+    color: colors.background,
   },
   title: {
     fontSize: 36,
     fontWeight: 'bold',
     marginBottom: 12,
     textAlign: 'center',
-    color: '#1E293B',
+    color: colors.textPrimary,
     letterSpacing: 0.5,
   },
   subtitle: {
     fontSize: 18,
     marginBottom: 8,
     textAlign: 'center',
-    color: '#64748B',
+    color: colors.textSecondary,
     lineHeight: 24,
   },
   buttonContainer: {
@@ -141,10 +142,10 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   primaryButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: colors.primary,
   },
   buttonText: {
-    color: 'white',
+    color: colors.background,
     fontSize: 16,
     fontWeight: '600',
     letterSpacing: 0.5,
@@ -152,10 +153,10 @@ const styles = StyleSheet.create({
   secondaryButton: {
     backgroundColor: 'transparent',
     borderWidth: 2,
-    borderColor: '#3B82F6',
+    borderColor: colors.primary,
   },
   secondaryButtonText: {
-    color: '#3B82F6',
+    color: colors.primary,
   },
   featuresContainer: {
     width: '100%',
