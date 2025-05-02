@@ -7,18 +7,66 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
+import * as SecureStore from 'expo-secure-store';
+import api from '../lib/api';
+
+interface LoginResponse {
+  token: string;
+}
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleLogin = () => {
-    // Implement login logic here
-    console.log('Login attempt with:', email, password);
+  const handleLogin = async () => {
+    // Basic validation
+    if (!email || !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    if (!email.includes('@')) {
+      setError('Please enter a valid email');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const { data } = await api.post<LoginResponse>('http://localhost:3000/auth/login', {
+        email,
+        password,
+      });
+
+      // Store the token securely
+      await SecureStore.setItemAsync('userToken', data.token);
+      
+      // Navigate to the main app
+      router.replace('/(tabs)/home' as any);
+    } catch (err: any) {
+      if (err.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        setError(err.response.data.message || 'Login failed');
+      } else if (err.request) {
+        // The request was made but no response was received
+        setError('No response from server. Please check your connection.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setError('An unexpected error occurred');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -41,31 +89,52 @@ export default function LoginScreen() {
         <Text style={styles.subtitle}>Sign in to continue</Text>
 
         <View style={styles.formContainer}>
+          {error ? (
+            <Text style={styles.errorText}>{error}</Text>
+          ) : null}
+          
           <TextInput
-            style={styles.input}
+            style={[styles.input, error ? styles.inputError : null]}
             placeholder="Email"
             placeholderTextColor={colors.textSecondary}
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(text) => {
+              setEmail(text);
+              setError('');
+            }}
             keyboardType="email-address"
             autoCapitalize="none"
+            editable={!isLoading}
           />
           <TextInput
-            style={styles.input}
+            style={[styles.input, error ? styles.inputError : null]}
             placeholder="Password"
             placeholderTextColor={colors.textSecondary}
             value={password}
-            onChangeText={setPassword}
+            onChangeText={(text) => {
+              setPassword(text);
+              setError('');
+            }}
             secureTextEntry
+            editable={!isLoading}
           />
           
-          <TouchableOpacity style={[styles.button, styles.primaryButton]} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Log In</Text>
+          <TouchableOpacity 
+            style={[styles.button, styles.primaryButton, isLoading && styles.buttonDisabled]} 
+            onPress={handleLogin}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color={colors.background} />
+            ) : (
+              <Text style={styles.buttonText}>Log In</Text>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={styles.linkContainer}
             onPress={() => router.push('/signup')}
+            disabled={isLoading}
           >
             <Text style={styles.linkText}>Don't have an account? </Text>
             <Text style={styles.linkTextBold}>Sign up</Text>
@@ -173,5 +242,17 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 16,
     fontWeight: '600',
+  },
+  errorText: {
+    color: colors.error,
+    fontSize: 14,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  inputError: {
+    borderColor: colors.error,
+  },
+  buttonDisabled: {
+    opacity: 0.7,
   },
 });
