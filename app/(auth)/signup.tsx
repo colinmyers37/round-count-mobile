@@ -7,19 +7,81 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
+import * as SecureStore from 'expo-secure-store';
+import api from '../lib/api';
+import { API_ENDPOINTS } from '../config/api.config';
+
+interface SignupResponse {
+  token: string;
+}
 
 export default function SignupScreen() {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSignup = () => {
-    // Implement signup logic here
-    console.log('Signup attempt with:', email, password);
+  const handleSignup = async () => {
+    // Basic validation
+    if (!firstName || !lastName || !email || !password || !confirmPassword) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    if (!email.includes('@')) {
+      setError('Please enter a valid email');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const { data } = await api.post<SignupResponse>(API_ENDPOINTS.auth.signup, {
+        firstName,
+        lastName,
+        email,
+        password,
+      });
+
+      // Store the token securely
+      await SecureStore.setItemAsync('userToken', data.token);
+      
+      // Navigate to the main app
+      router.replace('/(tabs)/home' as any);
+    } catch (err: any) {
+      if (err.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        setError(err.response.data.message || 'Signup failed');
+      } else if (err.request) {
+        // The request was made but no response was received
+        setError('No response from server. Please check your connection.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setError('An unexpected error occurred');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -42,39 +104,88 @@ export default function SignupScreen() {
         <Text style={styles.subtitle}>Sign up to get started</Text>
 
         <View style={styles.formContainer}>
+          {error ? (
+            <Text style={styles.errorText}>{error}</Text>
+          ) : null}
+          
           <TextInput
-            style={styles.input}
+            style={[styles.input, error ? styles.inputError : null]}
+            placeholder="First Name"
+            placeholderTextColor={colors.textSecondary}
+            value={firstName}
+            onChangeText={(text) => {
+              setFirstName(text);
+              setError('');
+            }}
+            autoCapitalize="words"
+            editable={!isLoading}
+          />
+          <TextInput
+            style={[styles.input, error ? styles.inputError : null]}
+            placeholder="Last Name"
+            placeholderTextColor={colors.textSecondary}
+            value={lastName}
+            onChangeText={(text) => {
+              setLastName(text);
+              setError('');
+            }}
+            autoCapitalize="words"
+            editable={!isLoading}
+          />
+          <TextInput
+            style={[styles.input, error ? styles.inputError : null]}
             placeholder="Email"
             placeholderTextColor={colors.textSecondary}
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(text) => {
+              setEmail(text);
+              setError('');
+            }}
             keyboardType="email-address"
             autoCapitalize="none"
+            editable={!isLoading}
           />
           <TextInput
-            style={styles.input}
+            style={[styles.input, error ? styles.inputError : null]}
             placeholder="Password"
             placeholderTextColor={colors.textSecondary}
             value={password}
-            onChangeText={setPassword}
+            onChangeText={(text) => {
+              setPassword(text);
+              setError('');
+            }}
             secureTextEntry
+            editable={!isLoading}
           />
           <TextInput
-            style={styles.input}
+            style={[styles.input, error ? styles.inputError : null]}
             placeholder="Confirm Password"
             placeholderTextColor={colors.textSecondary}
             value={confirmPassword}
-            onChangeText={setConfirmPassword}
+            onChangeText={(text) => {
+              setConfirmPassword(text);
+              setError('');
+            }}
             secureTextEntry
+            editable={!isLoading}
           />
           
-          <TouchableOpacity style={[styles.button, styles.primaryButton]} onPress={handleSignup}>
-            <Text style={styles.buttonText}>Sign Up</Text>
+          <TouchableOpacity 
+            style={[styles.button, styles.primaryButton, isLoading && styles.buttonDisabled]} 
+            onPress={handleSignup}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color={colors.background} />
+            ) : (
+              <Text style={styles.buttonText}>Sign Up</Text>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={styles.linkContainer}
             onPress={() => router.push('/login')}
+            disabled={isLoading}
           >
             <Text style={styles.linkText}>Already have an account? </Text>
             <Text style={styles.linkTextBold}>Log in</Text>
@@ -90,18 +201,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
   backButton: {
     position: 'absolute',
     top: Platform.OS === 'ios' ? 50 : 20,
     left: 20,
     zIndex: 1,
     padding: 8,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
   },
   logoContainer: {
     width: 80,
@@ -182,5 +293,17 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 16,
     fontWeight: '600',
+  },
+  errorText: {
+    color: colors.error,
+    fontSize: 14,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  inputError: {
+    borderColor: colors.error,
+  },
+  buttonDisabled: {
+    opacity: 0.7,
   },
 });
