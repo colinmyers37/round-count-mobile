@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import * as SecureStore from 'expo-secure-store';
 import api from '../lib/api';
+import { API_ENDPOINTS } from '../config/api.config';
 
 interface LoginResponse {
   token: string;
@@ -42,7 +43,7 @@ export default function LoginScreen() {
     setError('');
 
     try {
-      const { data } = await api.post<LoginResponse>('http://localhost:3000/auth/login', {
+      const { data } = await api.post<LoginResponse>(API_ENDPOINTS.auth.login, {
         email,
         password,
       });

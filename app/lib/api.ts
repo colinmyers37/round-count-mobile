@@ -1,10 +1,11 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import { API_CONFIG, CURRENT_ENV } from '../config/api.config';
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: 'http://localhost:3000', // Replace with your actual API base URL
-  timeout: 10000,
+  baseURL: API_CONFIG[CURRENT_ENV].baseURL,
+  timeout: API_CONFIG[CURRENT_ENV].timeout,
   headers: {
     'Content-Type': 'application/json',
   },
